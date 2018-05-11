@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en-US"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width">
+<title>Deploying OpenStack with just two machines. The MaaS and Juju way. – Marco Ceppi</title>
+<link rel="profile" href="http://gmpg.org/xfn/11">
+<link rel="pingback" href="http://marcoceppi.com/xmlrpc.php">
+<link rel="alternate" type="application/rss+xml" title="Marco Ceppi » Feed" href="http://marcoceppi.com/feed/">
+<link rel="alternate" type="application/rss+xml" title="Marco Ceppi » Comments Feed" href="http://marcoceppi.com/comments/feed/">
+<link rel="alternate" type="application/rss+xml" title="Marco Ceppi » Deploying OpenStack with just two machines. The MaaS and Juju way. Comments Feed" href="http://marcoceppi.com/2014/06/deploying-openstack-with-just-two-machines/feed/">
+		<script src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/a_002.html" async=""></script><script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"http:\/\/s.w.org\/images\/core\/emoji\/72x72\/","ext":".png","source":{"concatemoji":"http:\/\/marcoceppi.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=4.3.1"}};
+			!function(a,b,c){function d(a){var c=b.createElement("canvas"),d=c.getContext&&c.getContext("2d");return d&&d.fillText?(d.textBaseline="top",d.font="600 32px Arial","flag"===a?(d.fillText(String.fromCharCode(55356,56812,55356,56807),0,0),c.toDataURL().length>3e3):(d.fillText(String.fromCharCode(55357,56835),0,0),0!==d.getImageData(16,16,1,1).data[0])):!1}function e(a){var c=b.createElement("script");c.src=a,c.type="text/javascript",b.getElementsByTagName("head")[0].appendChild(c)}var f,g;c.supports={simple:d("simple"),flag:d("flag")},c.DOMReady=!1,c.readyCallback=function(){c.DOMReady=!0},c.supports.simple&&c.supports.flag||(g=function(){c.readyCallback()},b.addEventListener?(b.addEventListener("DOMContentLoaded",g,!1),a.addEventListener("load",g,!1)):(a.attachEvent("onload",g),b.attachEvent("onreadystatechange",function(){"complete"===b.readyState&&c.readyCallback()})),f=c.source||{},f.concatemoji?e(f.concatemoji):f.wpemoji&&f.twemoji&&(e(f.twemoji),e(f.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script><script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/wp-emoji-release.js"></script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+<link rel="stylesheet" id="stacktack-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/stacktack.css" type="text/css" media="all">
+<link rel="stylesheet" id="wp-syntax-css-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/wp-syntax.css" type="text/css" media="all">
+<link rel="stylesheet" id="theme-style-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/style.css" type="text/css" media="all">
+<style id="theme-style-inline-css" type="text/css">
+
+	a, a:visited, a:hover, 
+	.comment-action i {color: #dd4814;}
+	input[type='submit'], 
+	input[type='button'], 
+	.paging-navigation li a:hover, 
+	.hentry .entry-header:after, 
+	.hentry .entry-footer:before, 
+	.hentry .hentry-box > .entry-quote, 
+	.hentry .entry-link, 
+	.hentry .entry-status,
+	#site-header #logo,
+	.hentry .entry-date,
+	.paging-navigation:after,
+	#timeline > li .hentry:after {
+		background: #dd4814;
+	}
+	.entry-content a:hover, 
+	.entry-content blockquote, 
+	p.pullquote-left, 
+	p.pullquote-right,
+	#social-icons li a:hover,
+	#nav-primary > ul > li:hover > a {
+		border-color: #dd4814;
+	}
+	#social-icons li a:hover,
+	#nav-primary > ul > li:hover > a,
+	#nav-primary ul ul li a:hover {
+		color: #dd4814;
+	}
+	.hentry .entry-thumb-caption, .gallery .gallery-item-caption {
+	background: #dd4814;
+	background: rgba(221,72,20,0.8);
+	}
+	
+</style>
+<link rel="stylesheet" id="theme-font-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/css.css" type="text/css" media="all">
+<link rel="stylesheet" id="font-awesome-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/font-awesome.css" type="text/css" media="all">
+<!--[if lte IE 7]>
+<link rel='stylesheet' id='font-awesome-ie7-css'  href='http://marcoceppi.com/wp-content/themes/scopic/css/css/font-awesome-ie7.min.css?ver=4.3.1' type='text/css' media='all' />
+<![endif]-->
+<link rel="stylesheet" id="magnific-popup-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/magnific-popup.css" type="text/css" media="all">
+<link rel="stylesheet" id="jetpack_css-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/jetpack.css" type="text/css" media="all">
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/jquery.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/jquery-migrate.js"></script>
+<link rel="EditURI" type="application/rsd+xml" title="RSD" href="http://marcoceppi.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://marcoceppi.com/wp-includes/wlwmanifest.xml"> 
+<link rel="prev" title="Compiling Juju and the local provider" href="http://marcoceppi.com/2013/07/compiling-juju-and-the-local-provider/">
+<link rel="next" title="A new Charm Review Queue" href="http://marcoceppi.com/2014/09/a-new-charm-review-queue/">
+<meta name="generator" content="WordPress 4.3.1">
+<link rel="canonical" href="http://marcoceppi.com/2014/06/deploying-openstack-with-just-two-machines/">
+<link rel="shortlink" href="http://wp.me/p4wylZ-8s">
+<!--[if lt IE 9]><script src="http://marcoceppi.com/wp-content/themes/scopic/js/html5.js"></script><![endif]--><!--[if (gte IE 6)&(lte IE 8)]><script src="http://marcoceppi.com/wp-content/themes/scopic/js/selectivizr-min.js"></script><![endif]-->
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article">
+<meta property="og:title" content="Deploying OpenStack with just two machines. The MaaS and Juju way.">
+<meta property="og:url" content="http://marcoceppi.com/2014/06/deploying-openstack-with-just-two-machines/">
+<meta property="og:description" content="A lot of people have been asking lately about what the minimum number of nodes are required to setup OpenStack and there seems to be a lot of buzz around setting up OpenStack with Juju and MAAS. So…">
+<meta property="article:published_time" content="2014-06-20T18:46:01+00:00">
+<meta property="article:modified_time" content="2014-06-22T05:07:05+00:00">
+<meta property="og:site_name" content="Marco Ceppi">
+<meta property="og:image" content="http://marcoceppi.com/wp-content/uploads/2014/06/Selection_220-1024x524.png">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:site" content="@marcoceppi">
+<meta name="twitter:card" content="summary">
+
+<style id="custom-css-css">pre{padding:1em}code{line-height:1em}.single .hentry{max-width:950px}#content{width:100%}</style>
+<script src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/embed.js" async="" type="text/javascript"></script><script src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/count.js" type="text/javascript" async=""></script><link rel="stylesheet" type="text/css" id="gravatar-card-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/hovercard.css"><link rel="stylesheet" type="text/css" id="gravatar-card-services-css" href="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/services.css"></head>
+<body class="single single-post postid-524 single-format-standard clearfix">
+
+<!-- #header -->
+<header id="site-header" class="clearfix" role="banner">
+
+<!-- #logo -->
+<div id="logo">
+    <!-- .container -->
+<div class="container">
+		<a title="Marco Ceppi" href="http://marcoceppi.com/">
+				<strong class="site-title">Marco Ceppi</strong>
+        <strong class="site-description">Marrying Development and Operations</strong>				<img alt="Marco Ceppi" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/marcoceppi.png">
+		</a>
+	</div>
+</div>
+<!-- /#logo -->
+
+  
+
+
+<div id="header-bottom" role="navigation" class="clearfix">
+<!-- .container -->
+<div class="container">
+
+        
+
+<ul id="social-icons" class="clearfix">
+<li class="rss"><a href="http://marcoceppi.com/feed/"><i class="icon-rss"></i></a></li><li class="twitter"><a href="https://twitter.com/marcoceppi"><i class="icon-twitter"></i></a></li><li class="facebook"><a href="https://www.facebook.com/marco.a.ceppi"><i class="icon-facebook"></i></a></li><li class="google-plus"><a href="https://plus.google.com/109912333998846923817/posts"><i class="icon-google-plus"></i></a></li></ul>
+
+
+
+
+</div>
+<!-- /.container -->   
+</div>
+
+</header>
+<!-- /#header -->
+
+<!-- #site-container -->
+<div id="site-container" class="clearfix">
+
+<!-- #primary -->
+<section id="primary" class="sidebar-right clearfix">
+
+<!-- #content -->
+<div id="content" role="main">
+
+
+<article id="post-524" class="post-524 post type-post status-publish format-standard hentry category-cloud category-juju category-maas category-planet-ubuntu category-ubuntu-2 tag-openstack clearfix">
+
+
+<!-- .hentry-box -->
+<div class="hentry-box">
+
+
+<div class="entry-wrap">
+  
+
+
+<header class="entry-header">
+	<h1 class="entry-title">Deploying OpenStack with just two machines. The MaaS and Juju way.</h1>
+    <div class="entry-meta">Posted: <time datetime="2014-06-20T14:46:01+00:00">2014/06/20</time> in <a href="http://marcoceppi.com/category/ubuntu-2/cloud/" rel="category tag">Cloud</a> • <a href="http://marcoceppi.com/category/ubuntu-2/cloud/juju/" rel="category tag">juju</a> • <a href="http://marcoceppi.com/category/ubuntu-2/cloud/maas/" rel="category tag">MAAS</a> • <a href="http://marcoceppi.com/category/ubuntu-2/planet-ubuntu/" rel="category tag">Planet</a> • <a href="http://marcoceppi.com/category/ubuntu-2/" rel="category tag">Ubuntu</a></div>
+</header>
+
+	<div class="entry-content clearfix">
+        <p>A lot of people have been asking lately about what the 
+minimum number of nodes are required to setup OpenStack and there seems 
+to be a lot of buzz around setting up OpenStack with Juju and MAAS. Some
+ would speculate it has something to do with the amazing keynote 
+presentation by Mark Shuttleworth, others would conceed it’s just 
+because charms are so damn cool. Whatever the reason my answer is as 
+follows</p>
+<blockquote><p>
+  You really want 12 nodes to do OpenStack right, even more for high 
+availability, but at a bare minimum you only need two nodes.
+</p></blockquote>
+<p>So, naturally, as more people dive in to OpenStack and evaluate how 
+they can use it in their organizations, they jump at the thought “Oh, I 
+have two servers laying around!” and immediately want to know how to 
+achieve such a feat with Juju and MAAS. So, I took an evening to do such
+ a thing with my small cluster and share the process.</p>
+<p>This post makes a few assumptions. First, that you have already set up MAAS, installed Juju, and <a href="https://juju.ubuntu.com/docs/config-maas.html">configured Juju to speak to your MAAS environment</a>. Secondly, that the two machine allotment is nodes after setting up MAAS and that these two nodes are already enlisted in MAAS.</p>
+<p><iframe src="//www.youtube.com/embed/59lVKD3VCEQ" allowfullscreen="" frameborder="0" height="480" width="640"></iframe></p>
+<h2>My setup</h2>
+<p>Before I dive much deeper, let me briefly show my setup.</p>
+<p><a href="http://marcoceppi.com/wp-content/uploads/2014/06/IMG_20140514_173144.jpg"><img src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/IMG_20140514_173144-1024x768.jpg" alt="the rig" class="aligncenter size-large wp-image-527" height="476" width="635"></a></p>
+<p>I realize the photo is terrible, the Nexus 4 just doesn’t have a 
+super stellar camera compared to other phones on the market. For the 
+purposes of this demo I’m using my home MAAS cluster which consists of 
+three Intel NUCs, a gigabit switch, a switched PDU, and an old Dell 
+Optiplex with an extra nick which acts as the MAAS region controller. 
+All the NUCs have been enlisted in MAAS and commissioned already.</p>
+<h2>Diving in</h2>
+<p>Once MAAS and Juju are configured you can go ahead and run <code>juju bootstrap</code>.
+ This will provision one of the MAAS nodes and use it as the 
+orchestration node for your juju environment. This can take some time, 
+especially if you don’t have fastpath installer selected, if you get a 
+timeout during your first bootstrap don’t fret! You can increase the 
+bootstrap timeout in the <code>environments.yaml</code> file with the following directive in your maas definition: <code>bootstrap-timeout: 900</code>. During the video I increase this timeout to 900 seconds in the hopes of eliminating this issue.</p>
+<p>After you’ve bootstrapped it’s time to get deploying! If you care to 
+use the Juju GUI now would be the time to deploy it. You can do so with 
+by running the following command:</p>
+<pre><code>juju deploy --to 0 juju-gui
+</code></pre>
+<p>To avoid having juju spin us up <em>another</em> machine we can tell Juju to simply place it on machine 0.</p>
+<blockquote><p>
+  <strong>NOTE</strong>: the <code>--to</code> flag is crazy dangerous. 
+Not all services can be safely co-located with each other. This is 
+tantamount to “hulk smashing” services and will likely break things. 
+Juju GUI is designed to coincide with the bootstrap node so this has 
+been safe. Running this elsewhere will likely result in bad things. You 
+have been warned.
+</p></blockquote>
+<p>Now it’s time to get OpenStack going! Run the following commands:</p>
+<pre><code>juju deploy --to lxc:0 mysql
+juju deploy --to lxc:0 keystone
+juju deploy --to lxc:0 nova-cloud-controller
+juju deploy --to lxc:0 glance
+juju deploy --to lxc:0 rabbitmq-server
+juju deploy --to lxc:0 openstack-dashboard
+juju deploy --to lxc:0 cinder
+</code></pre>
+<p>To break this down, what you’re doing is deploying the minimum number
+ of components required to support OpenStack, only your deploying them <em>to</em>
+ machine 0 (the bootstrap node) in LXC containers. If you don’t know 
+what LXC containers are, they are very light weight Linux containers 
+(virtual machines) that don’t produce a lot of overhead but allow you to
+ safely compartmentalize these services. So, after a few minutes these 
+machines will begin to pop online, but in the meantime we can press on 
+because Juju waits for nothing!</p>
+<p>The next step is to deploy the nova-compute node. This is the 
+powerhouse behind OpenStack and is the hypervisor for launching 
+instances. As such, we don’t really want to virtualize it as KVM (or 
+XEN, etc) don’t work well inside of LXC machines.</p>
+<pre><code>juju deploy nova-compute
+</code></pre>
+<p>That’s it. MAAS will allocate the second, and final node if you only 
+have two, to nova-compute. Now while all these machines are popping up 
+and becoming ready lets create relations. The magic of Juju and what it 
+can do is in creating relations between services. It’s what turns a 
+bunch of scripts into LEGOs for the cloud. You’ll need to run the 
+following commands to create all the relations necessary for the 
+OpenStack components to talk to eachother:</p>
+<pre><code>juju add-relation mysql keystone
+juju add-relation nova-cloud-controller mysql
+juju add-relation nova-cloud-controller rabbitmq-server
+juju add-relation nova-cloud-controller glance
+juju add-relation nova-cloud-controller keystone
+juju add-relation nova-compute nova-cloud-controller
+juju add-relation nova-compute mysql
+juju add-relation nova-compute rabbitmq-server:amqp
+juju add-relation nova-compute glance
+juju add-relation glance mysql
+juju add-relation glance keystone
+juju add-relation glance cinder
+juju add-relation mysql cinder
+juju add-relation cinder rabbitmq-server
+juju add-relation cinder nova-cloud-controller
+juju add-relation cinder keystone
+juju add-relation openstack-dashboard keystone
+</code></pre>
+<p>Whew, I know that’s a lot to go through, but OpenStack isn’t a walk 
+in the park. It’s a pretty intricate system with lots of dependencies. 
+The good news is we’re nearly done! No doubt most of the nodes have 
+turned green in the GUI or are marked as “started” in the output of <code>juju status</code>.</p>
+<p><a href="http://marcoceppi.com/wp-content/uploads/2014/06/Selection_220.png"><img src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/Selection_220-1024x524.png" alt="Selection_220" class="aligncenter size-large wp-image-532" height="324" width="635"></a></p>
+<p>One of the last things is configuration for the cloud. Since this is 
+all working against Trusty, we have the latest OpenStack being 
+installed. All that’s left is to configure our admin password in 
+keystone so we can log in to the dashboard.</p>
+<pre><code>juju set keystone admin-password="helloworld"
+</code></pre>
+<p>Set the password to whatever you’d like. Once complete, run <code>juju status openstack-dashboard</code>
+ find the public-address for that unit, load it’s address in your 
+browser and navigate to /horizon. (For example, if the public-address 
+was 10.0.1.2 you would go to <code>http://10.0.1.2/horizon</code>). Log 
+in with the username admin and the password as you set it in the command
+ line. You should now be in the horizon dashboard for OpenStack. Click 
+on Admin -&gt; System Panel -&gt; Hypervisors and confirm you have a 
+hypervisor listed.</p>
+<p>Congradulations! You’ve created a condensed OpenStack installation.</p>
+            </div>
+            	<div class="tags">
+        		Tagged: <a href="http://marcoceppi.com/tag/openstack/" rel="tag">openstack</a>       		</div>
+     
+<!-- /.hentry-wrap -->
+</div>
+
+<!-- /.hentry-box -->
+</div>
+
+  
+ 
+</article>
+
+
+<div id="disqus_thread"><iframe verticalscrolling="no" horizontalscrolling="no" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/a.html" style="width: 100% ! important; border: medium none ! important; overflow: hidden ! important; height: 9048px ! important;" title="Disqus" tabindex="0" scrolling="no" allowtransparency="true" name="dsq-app1" id="dsq-app1" frameborder="0" width="100%"></iframe></div>
+
+<script type="text/javascript">
+var disqus_url = 'http://marcoceppi.com/2014/06/deploying-openstack-with-just-two-machines/';
+var disqus_identifier = '524 http://marcoceppi.com/?p=524';
+var disqus_container_id = 'disqus_thread';
+var disqus_shortname = 'marcoceppi';
+var disqus_title = "Deploying OpenStack with just two machines. The MaaS and Juju way.";
+var disqus_config_custom = window.disqus_config;
+var disqus_config = function () {
+    /*
+    All currently supported events:
+    onReady: fires when everything is ready,
+    onNewComment: fires when a new comment is posted,
+    onIdentify: fires when user is authenticated
+    */
+    
+    
+    this.language = '';
+        this.callbacks.onReady.push(function () {
+
+        // sync comments in the background so we don't block the page
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = '?cf_action=sync_comments&post_id=524';
+
+        var firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript);
+    });
+    
+    if (disqus_config_custom) {
+        disqus_config_custom.call(this);
+    }
+};
+
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+</script>
+
+
+</div>
+<!-- #content -->
+
+
+</section>
+<!-- /#primary -->
+
+
+</div>
+<!-- /#site-container -->
+
+<!-- #site-footer -->
+<footer id="site-footer" class="clearfix">
+
+
+
+<div id="footer-bottom" class="clearfix">
+<div class="container">
+    <small id="copyright" role="contentinfo">© 2013 Marco Ceppi</small>
+  
+
+    
+ </div>
+ </div> 
+  
+</footer> 
+<!-- /#site-footer -->
+
+        <script type="text/javascript">
+        // <![CDATA[
+        var disqus_shortname = 'marcoceppi';
+        (function () {
+            var nodes = document.getElementsByTagName('span');
+            for (var i = 0, url; i < nodes.length; i++) {
+                if (nodes[i].className.indexOf('dsq-postid') != -1) {
+                    nodes[i].parentNode.setAttribute('data-disqus-identifier', nodes[i].getAttribute('data-dsqidentifier'));
+                    url = nodes[i].parentNode.href.split('#', 1);
+                    if (url.length == 1) { url = url[0]; }
+                    else { url = url[1]; }
+                    nodes[i].parentNode.href = url + '#disqus_thread';
+                }
+            }
+            var s = document.createElement('script'); 
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+        // ]]>
+        </script>
+        	<div style="display:none">
+	</div>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/stacktack.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var stacktack = {"answers":"accepted","tags":"true","secure":"false"};
+/* ]]> */
+</script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/stacktack_002.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/devicepx-jetpack.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/gprofiles.js"></script>
+<script type="text/javascript">
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/wpgroho.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/functions.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/comment-reply.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/jquery_002.js"></script>
+<script type="text/javascript" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/e-201548.js" async="" defer="defer"></script>
+<script type="text/javascript">
+	_stq = window._stq || [];
+	_stq.push([ 'view', {v:'ext',j:'1:3.7.2',blog:'66863899',post:'524',tz:'-5',srv:'marcoceppi.com'} ]);
+	_stq.push([ 'clickTrackerInit', '66863899', '524' ]);
+</script>
+
+
+
+<img id="wpstats" src="Deploying%20OpenStack%20with%20just%20two%20machines.%20The%20MaaS%20and%20Juju%20way.%20%E2%80%93%20Marco%20Ceppi_files/g.gif"></body></html>
